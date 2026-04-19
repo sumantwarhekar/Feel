@@ -1,0 +1,478 @@
+/* ════════════════════════════════════════════════════════════
+   Auth Pages — shared CSS module
+   Used by: login, register, forgot-password, reset-password
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Page wrapper ─────────────────────────────────────────── */
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(34, 197, 94, 0.12) 0%, transparent 70%),
+    var(--off-white);
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+.card {
+  width: 100%;
+  max-width: 460px;
+  background: white;
+  border-radius: 24px;
+  padding: 48px 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--gray-100);
+}
+
+/* ── Logo / header ────────────────────────────────────────── */
+.logoWrap {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logoLink {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.logoCircle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--green-400), var(--green-600));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-green);
+  font-size: 26px;
+  transition: transform 0.3s ease;
+}
+
+.logoCircle:hover {
+  transform: scale(1.05);
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.subtext {
+  color: var(--gray-500);
+  font-size: 0.9375rem;
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+/* ── Google button ────────────────────────────────────────── */
+.googleBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: white;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.googleBtn:hover:not(:disabled) {
+  border-color: var(--green-300);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.12);
+}
+
+.googleBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Divider ──────────────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--gray-200);
+}
+
+.dividerText {
+  color: var(--gray-400);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── Error banner (server-level errors) ───────────────────── */
+.errorBanner {
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-bottom: 20px;
+}
+
+/* ── Form group ───────────────────────────────────────────── */
+.formGroup {
+  margin-bottom: 18px;
+}
+
+.formGroupLast {
+  margin-bottom: 24px;
+}
+
+/* ── Label ────────────────────────────────────────────────── */
+.label {
+  display: block;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* ── Input ────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--gray-800);
+  background: white;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: var(--green-400);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.input.inputError {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.input.inputError:focus {
+  border-color: #f87171;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+/* ── Field error ──────────────────────────────────────────── */
+.fieldError {
+  color: #ef4444;
+  font-size: 0.8125rem;
+  margin-top: 6px;
+}
+
+/* ── Submit button ────────────────────────────────────────── */
+.submitBtn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--green-500), var(--green-600));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-green);
+  transition: opacity 0.2s, background 0.2s;
+  margin-bottom: 20px;
+}
+
+.submitBtn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.submitBtn:disabled {
+  background: var(--green-300);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ── Outline / secondary button ───────────────────────────── */
+.outlineBtn {
+  width: 100%;
+  padding: 13px;
+  background: white;
+  color: var(--green-600);
+  border: 1.5px solid var(--green-300);
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 16px;
+}
+
+.outlineBtn:hover {
+  border-color: var(--green-500);
+  background: rgba(34, 197, 94, 0.04);
+}
+
+/* ── Footer / helper links ────────────────────────────────── */
+.footerText {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  margin-top: 24px;
+  margin-bottom: 0;
+}
+
+.forgotLink {
+  font-size: 0.8125rem;
+  color: var(--green-600);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.forgotLink:hover {
+  text-decoration: underline;
+}
+
+.link {
+  color: var(--green-600);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.backLink {
+  display: block;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--gray-700);
+}
+
+/* ── Terms note ───────────────────────────────────────────── */
+.termsText {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--gray-400);
+  line-height: 1.6;
+  margin-top: 16px;
+}
+
+/* Plain text — no link appearance */
+.termsPlain {
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+/* ── Password strength bar ────────────────────────────────── */
+.strengthBars {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.strengthBar {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--gray-200);
+  transform-origin: left;
+  transition: background 0.3s;
+}
+
+.strengthLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* ── Success / info badge ─────────────────────────────────── */
+.successBadge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1.5px solid rgba(34, 197, 94, 0.25);
+  border-radius: 12px;
+  margin-bottom: 28px;
+}
+
+.successBadgeIcon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.successBadgeTitle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--gray-800);
+  margin: 0 0 2px;
+}
+
+.successBadgeEmail {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  margin: 0;
+}
+
+.successHelperText {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+/* ── Success icon circle ──────────────────────────────────── */
+.successIconCircle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin: 0 auto 20px;
+}
+
+/* ── Loading spinner ──────────────────────────────────────── */
+.spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid var(--green-200);
+  border-top-color: var(--green-500);
+  margin: 0 auto 16px;
+}
+
+.spinnerText {
+  color: var(--gray-500);
+  font-size: 0.9375rem;
+  text-align: center;
+}
+
+/* ── User email display ───────────────────────────────────── */
+.userEmail {
+  color: var(--gray-500);
+  font-size: 0.875rem;
+  margin: 0 0 20px;
+  text-align: center;
+}
+
+.userEmailStrong {
+  color: var(--gray-700);
+  font-weight: 600;
+}
+
+/* ── Submit-styled Link (same visual as submitBtn but for <Link>) ── */
+.submitLink {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--green-500), var(--green-600));
+  color: white;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-green);
+  margin-bottom: 16px;
+  transition: opacity 0.2s;
+}
+
+.submitLink:hover {
+  opacity: 0.92;
+}
+
+/* ── Dashboard page ───────────────────────────────────────── */
+.dashPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 24px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(34, 197, 94, 0.12) 0%, transparent 70%),
+    var(--off-white);
+}
+
+.dashCard {
+  background: white;
+  border-radius: 24px;
+  padding: 48px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--gray-100);
+  max-width: 480px;
+  width: 100%;
+}
+
+.dashEmoji {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.dashHeading {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin: 0 0 8px;
+}
+
+.dashSubtext {
+  color: var(--gray-500);
+  margin: 0 0 32px;
+  line-height: 1.6;
+}
+
+.dashLogout {
+  margin: 0 auto;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .card {
+    padding: 36px 24px;
+  }
+}
