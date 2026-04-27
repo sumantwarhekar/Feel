@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useEntries, type MoodId } from "@/lib/hooks/useEntries";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import styles from "@/styles/dashboard.module.css";
 
@@ -32,9 +33,9 @@ const panelVariants = {
 /* ── Today ── */
 function TodayPanel() {
   const { user } = useAuth();
-  const [text, setText]         = useState("");
-  const [mood, setMood]         = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+  const { todayEntry, streak, loading, saving, saveEntry } = useEntries();
+  const [text, setText] = useState("");
+  const [mood, setMood] = useState<string | null>(null);
 
   const firstName = user?.displayName?.split(" ")[0] ?? "there";
   const remaining = MAX_CHARS - text.length;
@@ -46,13 +47,23 @@ function TodayPanel() {
     return "Good evening";
   })();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!text.trim() || !mood || remaining < 0) return;
-    // TODO: persist to Firestore
-    setSubmitted(true);
+    await saveEntry(text, mood as MoodId);
   };
 
-  if (submitted) {
+  if (loading) {
+    return (
+      <motion.div key="loading" {...panelVariants} transition={{ duration: 0.4 }}>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyEmoji}>⏳</div>
+          <p className={styles.emptySubtext}>Loading…</p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (todayEntry) {
     return (
       <motion.div key="submitted" {...panelVariants} transition={{ duration: 0.4 }}>
         <div className={styles.emptyState}>
@@ -71,7 +82,9 @@ function TodayPanel() {
       <h1 className={styles.sectionHeading}>{greeting}, {firstName}!</h1>
       <p className={styles.sectionSubtext}>How was your day? Write one line.</p>
 
-      <span className={styles.streakBadge}>🔥 0-day streak — start today!</span>
+      <span className={styles.streakBadge}>
+        {streak > 0 ? `🔥 ${streak}-day streak — keep it up!` : "🔥 0-day streak — start today!"}
+      </span>
 
       {/* Entry textarea */}
       <div className={styles.entryCard}>
@@ -92,11 +105,11 @@ function TodayPanel() {
             id="save-entry-btn"
             className={`btn-primary ${styles.saveBtn}`}
             onClick={handleSubmit}
-            disabled={!text.trim() || !mood || remaining < 0}
+            disabled={!text.trim() || !mood || remaining < 0 || saving}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            Save entry
+            {saving ? "Saving…" : "Save entry"}
           </motion.button>
         </div>
       </div>
