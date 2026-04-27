@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -139,16 +139,87 @@ function TodayPanel() {
 
 /* ── Timeline ── */
 function TimelinePanel() {
+  const { entries, loading, loadEntries } = useEntries();
+
+  useEffect(() => { loadEntries(); }, [loadEntries]);
+
+  /* Group entries by "YYYY-MM" key, preserving desc order */
+  const grouped = useMemo(() => {
+    const map = new Map<string, typeof entries>();
+    for (const entry of entries) {
+      const key = entry.date.slice(0, 7); // "YYYY-MM"
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(entry);
+    }
+    return map;
+  }, [entries]);
+
+  const formatMonth = (key: string) => {
+    const [y, m] = key.split("-").map(Number);
+    return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  };
+
+  const formatDate = (dateStr: string) => {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString("en-US", {
+      weekday: "short", month: "short", day: "numeric",
+    });
+  };
+
+  if (loading) {
+    return (
+      <motion.div key="tl-loading" {...panelVariants} transition={{ duration: 0.4 }}>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyEmoji}>⏳</div>
+          <p className={styles.emptySubtext}>Loading…</p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (entries.length === 0) {
+    return (
+      <motion.div key="timeline" {...panelVariants} transition={{ duration: 0.4 }}>
+        <h1 className={styles.sectionHeading}>Timeline</h1>
+        <p className={styles.sectionSubtext}>All your entries, most recent first.</p>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyEmoji}>📋</div>
+          <h2 className={styles.emptyTitle}>No entries yet</h2>
+          <p className={styles.emptySubtext}>
+            Write your first entry on the Today tab. Every line you write shows up here.
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div key="timeline" {...panelVariants} transition={{ duration: 0.4 }}>
       <h1 className={styles.sectionHeading}>Timeline</h1>
       <p className={styles.sectionSubtext}>All your entries, most recent first.</p>
-      <div className={styles.emptyState}>
-        <div className={styles.emptyEmoji}>📋</div>
-        <h2 className={styles.emptyTitle}>No entries yet</h2>
-        <p className={styles.emptySubtext}>
-          Write your first entry on the Today tab. Every line you write shows up here.
-        </p>
+
+      <div className={styles.timelineList}>
+        {Array.from(grouped.entries()).map(([key, monthEntries]) => (
+          <div key={key} className={styles.monthGroup}>
+            <p className={styles.monthLabel}>{formatMonth(key)}</p>
+            {monthEntries.map((entry) => {
+              const mood = MOODS.find((m) => m.id === entry.mood);
+              return (
+                <div key={entry.id} className={styles.timelineEntry}>
+                  <div className={styles.entryMeta}>
+                    <span className={styles.entryDate}>{formatDate(entry.date)}</span>
+                    {mood && (
+                      <span className={styles.entryMoodPill}>
+                        {mood.emoji} {mood.label}
+                      </span>
+                    )}
+                  </div>
+                  <p className={styles.entryBody}>{entry.text}</p>
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </motion.div>
   );
