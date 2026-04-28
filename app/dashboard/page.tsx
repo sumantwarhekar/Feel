@@ -15,11 +15,16 @@ export default function DashboardPage() {
 
   const renderPanel = () => {
     switch (activeTab) {
-      case "today":    return <TodayPanel />;
-      case "timeline": return <TimelinePanel />;
-      case "calendar": return <CalendarPanel />;
-      case "stats":    return <StatsPanel />;
-      default:         return <TodayPanel />;
+      case "today":
+        return <TodayPanel />;
+      case "timeline":
+        return <TimelinePanel />;
+      case "calendar":
+        return <CalendarPanel />;
+      case "stats":
+        return <StatsPanel />;
+      default:
+        return <TodayPanel />;
     }
   };
 
@@ -28,9 +33,7 @@ export default function DashboardPage() {
       <DashboardNavbar activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main className={styles.tabContent}>
-        <AnimatePresence mode="wait">
-          {renderPanel()}
-        </AnimatePresence>
+        <AnimatePresence mode="wait">{renderPanel()}</AnimatePresence>
       </main>
     </div>
   );
