@@ -1,8 +1,16 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/lib/hooks/useAuth";
+import {
+  saveEntry as firestoreSaveEntry,
+  getTodayEntry,
+  getUserStreak,
+  getAllEntries,
+  type Mood,
+} from "@/lib/firebase/entries";
 
-export type MoodId = "great" | "good" | "meh" | "bad" | "awful";
+export type MoodId = Mood;
 
 export interface Entry {
   id: string;
@@ -14,37 +22,8 @@ export interface Entry {
   createdAt: string; // ISO string
 }
 
-interface UserMeta {
-  streak: number;
-  lastEntryDate: string | null; // YYYY-MM-DD
-}
-
-const ENTRIES_KEY = "feel_entries";
-const META_KEY    = "feel_user_meta";
-
-function localDateStr(d = new Date()): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-function readEntries(): Entry[] {
-  try { return JSON.parse(localStorage.getItem(ENTRIES_KEY) ?? "[]"); }
-  catch { return []; }
-}
-
-function writeEntries(entries: Entry[]): void {
-  localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries));
-}
-
-function readMeta(): UserMeta {
-  try { return JSON.parse(localStorage.getItem(META_KEY) ?? "null") ?? { streak: 0, lastEntryDate: null }; }
-  catch { return { streak: 0, lastEntryDate: null }; }
-}
-
-function writeMeta(meta: UserMeta): void {
-  localStorage.setItem(META_KEY, JSON.stringify(meta));
-}
-
 export function useEntries() {
+  const { user } = useAuth();
   const [todayEntry, setTodayEntry] = useState<Entry | null>(null);
   const [entries, setEntries]       = useState<Entry[]>([]);
   const [streak, setStreak]         = useState(0);
@@ -52,47 +31,68 @@ export function useEntries() {
   const [saving, setSaving]         = useState(false);
 
   useEffect(() => {
-    const today = localDateStr();
-    const found = readEntries().find((e) => e.date === today) ?? null;
-    setTodayEntry(found);
-    setStreak(readMeta().streak);
-    setLoading(false);
-  }, []);
+    if (!user) return;
+    let cancelled = false;
 
-  const loadEntries = useCallback(() => {
-    const sorted = readEntries().sort((a, b) => b.date.localeCompare(a.date));
-    setEntries(sorted);
-  }, []);
+    Promise.allSettled([
+      getTodayEntry(user.uid),
+      getUserStreak(user.uid),
+    ]).then(([entryResult, streakResult]) => {
+      if (cancelled) return;
+      if (entryResult.status === "fulfilled" && entryResult.value) {
+        const e = entryResult.value;
+        setTodayEntry({
+          id:        e.id,
+          userId:    user.uid,
+          text:      e.text,
+          mood:      e.mood as MoodId,
+          date:      e.id.slice(user.uid.length + 1),
+          createdAt: new Date().toISOString(),
+        });
+      }
+      if (streakResult.status === "fulfilled") {
+        setStreak(streakResult.value);
+      }
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+
+    return () => { cancelled = true; };
+  }, [user]);
+
+  const loadEntries = useCallback(async () => {
+    if (!user) return;
+    const all = await getAllEntries(user.uid);
+    setEntries(all.map((e) => ({
+      id:        e.id,
+      userId:    user.uid,
+      text:      e.text,
+      mood:      e.mood as MoodId,
+      date:      e.date,
+      createdAt: e.createdAt?.toISOString() ?? new Date().toISOString(),
+    })));
+  }, [user]);
 
   const saveEntry = useCallback(async (text: string, mood: MoodId) => {
+    if (!user) return;
     setSaving(true);
     try {
-      const today = localDateStr();
-      const entry: Entry = {
-        id:        crypto.randomUUID(),
-        userId:    "local",
+      const newStreak = await firestoreSaveEntry(user.uid, text, mood);
+      setStreak(newStreak);
+      const today   = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+      setTodayEntry({
+        id:        `${user.uid}_${dateStr}`,
+        userId:    user.uid,
         text,
         mood,
-        date:      today,
-        createdAt: new Date().toISOString(),
-      };
-
-      writeEntries([...readEntries(), entry]);
-
-      const meta      = readMeta();
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const newStreak = meta.lastEntryDate === localDateStr(yesterday)
-        ? meta.streak + 1
-        : 1;
-
-      writeMeta({ streak: newStreak, lastEntryDate: today });
-      setStreak(newStreak);
-      setTodayEntry(entry);
+        date:      dateStr,
+        createdAt: today.toISOString(),
+      });
     } finally {
       setSaving(false);
     }
-  }, []);
+  }, [user]);
 
   return { todayEntry, entries, streak, loading, saving, saveEntry, loadEntries };
 }

@@ -3,16 +3,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 
-import { useAuth } from "@/lib/hooks/useAuth";
-import { useEntries, type MoodId, type Entry } from "@/lib/hooks/useEntries";
+import { useEntries, type Entry } from "@/lib/hooks/useEntries";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
-import TodayPanel     from "@/components/dashboard/TodayPanel";
-import CalendarPanel  from "@/components/dashboard/CalendarPanel";
-import TimelinePanel  from "@/components/dashboard/TimelinePanel";
-import StatsPanel     from "@/components/dashboard/StatsPanel";
+import TodayPanel    from "@/components/dashboard/TodayPanel";
+import CalendarPanel from "@/components/dashboard/CalendarPanel";
 import styles from "@/styles/dashboard.module.css";
-
-const isDev = process.env.NODE_ENV === "development";
 
 /* ── Mood options ───────────────────────────────────────── */
 const MOODS = [
@@ -22,8 +17,6 @@ const MOODS = [
   { id: "bad",   emoji: "😔", label: "Bad"   },
   { id: "awful", emoji: "😞", label: "Awful" },
 ];
-
-const MAX_CHARS = 280;
 
 /* ── Mood CSS class maps ────────────────────────────────── */
 const MOOD_PILL: Record<string, string> = {
@@ -105,124 +98,6 @@ function calcBestStreak(entries: Entry[]): number {
    Tab Panels
    ════════════════════════════════════════════════════════════ */
 
-/* ── Today ── */
-function TodayPanel() {
-  const { user } = useAuth();
-  const { todayEntry, streak, loading, saving, saveEntry } = useEntries();
-  const [text, setText] = useState("");
-  const [mood, setMood] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const firstName = user?.displayName?.split(" ")[0] ?? "there";
-  const remaining = MAX_CHARS - text.length;
-
-  const greeting = (() => {
-    const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 17) return "Good afternoon";
-    return "Good evening";
-  })();
-
-  const handleSubmit = async () => {
-    if (!text.trim() || !mood || remaining < 0) return;
-    setError(null);
-    try {
-      await saveEntry(text, mood as MoodId);
-      setSaved(true);
-    } catch {
-      setError("Something went wrong. Please try again.");
-    }
-  };
-
-  if (loading) {
-    return (
-      <motion.div key="loading" {...panelVariants} transition={{ duration: 0.4 }}>
-        <div className={styles.emptyState}>
-          <div className={styles.emptyEmoji}>⏳</div>
-          <p className={styles.emptySubtext}>Loading…</p>
-        </div>
-      </motion.div>
-    );
-  }
-
-  if (saved || todayEntry) {
-    return (
-      <motion.div key="submitted" {...panelVariants} transition={{ duration: 0.4 }}>
-        <div className={styles.emptyState}>
-          <div className={styles.emptyEmoji}>✅</div>
-          <h2 className={styles.emptyTitle}>Entry saved!</h2>
-          <p className={styles.emptySubtext}>
-            Great job writing today. Come back tomorrow to keep your streak going.
-          </p>
-        </div>
-      </motion.div>
-    );
-  }
-
-  return (
-    <motion.div key="today" {...panelVariants} transition={{ duration: 0.4 }}>
-      <h1 className={styles.sectionHeading}>{greeting}, {firstName}!</h1>
-      <p className={styles.sectionSubtext}>How was your day? Write one line.</p>
-
-      <span className={styles.streakBadge}>
-        {streak > 0 ? `🔥 ${streak}-day streak — keep it up!` : "🔥 0-day streak — start today!"}
-      </span>
-
-      {/* Entry textarea */}
-      <div className={styles.entryCard}>
-        <textarea
-          id="journal-entry"
-          className={styles.entryTextarea}
-          placeholder="One honest line about your day…"
-          value={text}
-          maxLength={MAX_CHARS + 10}
-          onChange={(e) => setText(e.target.value)}
-          autoFocus
-        />
-        <div className={styles.entryFooter}>
-          <span className={`${styles.charCount} ${remaining < 0 ? styles.charCountOver : ""}`}>
-            {remaining} characters left
-          </span>
-          <motion.button
-            id="save-entry-btn"
-            className={`btn-primary ${styles.saveBtn}`}
-            onClick={handleSubmit}
-            disabled={!text.trim() || !mood || remaining < 0 || saving}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {saving ? "Saving…" : "Save entry"}
-          </motion.button>
-        </div>
-        {error && <p className={styles.saveError}>{error}</p>}
-        {text.trim() && !mood && (
-          <p className={styles.saveHint}>Pick a mood below to save your entry.</p>
-        )}
-      </div>
-
-      {/* Mood picker */}
-      <div className={styles.moodCard}>
-        <p className={styles.moodLabel}>How are you feeling? 🌡️</p>
-        <div className={styles.moodGrid}>
-          {MOODS.map((m) => (
-            <motion.button
-              key={m.id}
-              id={`mood-${m.id}`}
-              className={`${styles.moodBtn} ${mood === m.id ? styles.moodActive : ""}`}
-              onClick={() => setMood(m.id)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span className={styles.moodEmoji}>{m.emoji}</span>
-              <span className={styles.moodText}>{m.label}</span>
-            </motion.button>
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
 
 /* ── Timeline ── */
 function TimelinePanel() {
@@ -303,55 +178,10 @@ function TimelinePanel() {
         ))}
       </motion.div>
 
-      <div className={styles.timelineFooter}>
-        <DeleteDataButton />
-      </div>
     </motion.div>
   );
 }
 
-function DeleteDataButton() {
-  const [confirm, setConfirm] = useState(false);
-
-  const handleDelete = () => {
-    localStorage.removeItem("feel_entries");
-    localStorage.removeItem("feel_user_meta");
-    window.location.reload();
-  };
-
-  if (confirm) {
-    return (
-      <div className={styles.deleteConfirm}>
-        <span className={styles.deleteConfirmText}>Delete all entries?</span>
-        <button className={styles.deleteConfirmYes} onClick={handleDelete}>Yes, delete</button>
-        <button className={styles.deleteConfirmNo} onClick={() => setConfirm(false)}>Cancel</button>
-      </div>
-    );
-  }
-
-  return (
-    <button className={styles.deleteDataBtn} onClick={() => setConfirm(true)}>
-      🗑 Delete all data
-    </button>
-  );
-}
-
-/* ── Calendar ── */
-function CalendarPanel() {
-  return (
-    <motion.div key="calendar" {...panelVariants} transition={{ duration: 0.4 }}>
-      <h1 className={styles.sectionHeading}>Calendar</h1>
-      <p className={styles.sectionSubtext}>Your journaling streak at a glance.</p>
-      <div className={styles.emptyState}>
-        <div className={styles.emptyEmoji}>📅</div>
-        <h2 className={styles.emptyTitle}>Streak calendar coming soon</h2>
-        <p className={styles.emptySubtext}>
-          Write a few entries and your consistency heatmap will appear here.
-        </p>
-      </div>
-    </motion.div>
-  );
-}
 
 /* ── Stats ── */
 function StatsPanel() {
@@ -485,29 +315,6 @@ function StatsPanel() {
   );
 }
 
-/* ── Dev seed button ── */
-function SeedButton() {
-  const [status, setStatus] = useState<"idle" | "seeding" | "done">("idle");
-
-  const handleSeed = async () => {
-    setStatus("seeding");
-    const { seedEntries } = await import("@/lib/utils/seedEntries");
-    seedEntries();
-    setStatus("done");
-    setTimeout(() => window.location.reload(), 800);
-  };
-
-  return (
-    <button onClick={handleSeed} disabled={status !== "idle"} style={{
-      position: "fixed", bottom: 24, right: 24, zIndex: 999,
-      padding: "8px 16px", borderRadius: 999, border: "1px dashed #aaa",
-      background: "white", fontSize: "0.75rem", color: "#666", cursor: "pointer",
-      opacity: status !== "idle" ? 0.6 : 1,
-    }}>
-      {status === "seeding" ? "Seeding…" : status === "done" ? "Done!" : "🌱 Seed data"}
-    </button>
-  );
-}
 
 /* ════════════════════════════════════════════════════════════
    Dashboard Page
@@ -538,7 +345,6 @@ export default function DashboardPage() {
         <AnimatePresence mode="wait">{renderPanel()}</AnimatePresence>
       </main>
 
-      {isDev && <SeedButton />}
     </div>
   );
 }
