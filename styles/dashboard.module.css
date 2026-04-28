@@ -328,6 +328,343 @@
   cursor: not-allowed;
 }
 
+.saveError {
+  margin: 8px 0 0;
+  font-size: 0.8125rem;
+  color: #ef4444;
+}
+
+.saveHint {
+  margin: 8px 0 0;
+  font-size: 0.8125rem;
+  color: var(--gray-400);
+}
+
+/* ── TIMELINE TAB ─────────────────────────────────────────── */
+.timelineList {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.monthGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.monthHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px;
+  margin-bottom: 2px;
+}
+
+.monthLabel {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.monthCount {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--green-700);
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.timelineEntry {
+  background: white;
+  border: 1px solid var(--gray-100);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  border-left-width: 3px;
+  border-left-style: solid;
+}
+
+.timelineEntry:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  transform: translateX(2px);
+}
+
+/* ── Mood left-border accents ─────────────────────────────── */
+.accentGreat { border-left-color: #22c55e; }
+.accentGood  { border-left-color: #86efac; }
+.accentMeh   { border-left-color: #fbbf24; }
+.accentBad   { border-left-color: #fb923c; }
+.accentAwful { border-left-color: #f87171; }
+
+.entryMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.entryDate {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--gray-400);
+}
+
+.entryMoodPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* ── Mood pill colour variants ────────────────────────────── */
+.pillGreat { background: rgba(34, 197, 94, 0.08);   border-color: rgba(34, 197, 94, 0.2);   color: #15803d; }
+.pillGood  { background: rgba(134, 239, 172, 0.15); border-color: rgba(134, 239, 172, 0.3); color: #166534; }
+.pillMeh   { background: rgba(251, 191, 36, 0.1);   border-color: rgba(251, 191, 36, 0.3);  color: #92400e; }
+.pillBad   { background: rgba(251, 146, 60, 0.1);   border-color: rgba(251, 146, 60, 0.3);  color: #9a3412; }
+.pillAwful { background: rgba(248, 113, 113, 0.1);  border-color: rgba(248, 113, 113, 0.3); color: #991b1b; }
+
+.entryBody {
+  font-size: 0.9375rem;
+  color: var(--gray-700);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── STATS TAB ────────────────────────────────────────────── */
+
+/* Stat cards 2×2 grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.statCard {
+  background: white;
+  border: 1px solid var(--gray-100);
+  border-radius: 20px;
+  padding: 20px 22px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.statIcon {
+  font-size: 1.375rem;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 0.8125rem;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+
+/* Chart card wrapper */
+.chartCard {
+  background: white;
+  border: 1px solid var(--gray-100);
+  border-radius: 20px;
+  padding: 22px 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  margin-bottom: 16px;
+}
+
+.chartTitle {
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--gray-700);
+  margin: 0 0 18px;
+}
+
+/* Mood distribution bars */
+.moodBarRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.moodBarRow:last-child { margin-bottom: 0; }
+
+.moodBarLabel {
+  width: 72px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--gray-600);
+  flex-shrink: 0;
+}
+
+.moodBarTrack {
+  flex: 1;
+  height: 8px;
+  background: var(--gray-100);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.moodBarFill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+/* Bar fill colours */
+.barGreat { background: #22c55e; }
+.barGood  { background: #86efac; }
+.barMeh   { background: #fbbf24; }
+.barBad   { background: #fb923c; }
+.barAwful { background: #f87171; }
+
+.moodBarCount {
+  width: 44px;
+  text-align: right;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.moodBarPct {
+  font-weight: 400;
+  color: var(--gray-400);
+}
+
+/* Monthly activity chart */
+.activityChart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 100px;
+}
+
+.activityCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+}
+
+.activityCount {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--green-600);
+  height: 14px;
+  line-height: 14px;
+}
+
+.activityBarWrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.activityBarFill {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(to top, var(--green-600), var(--green-400));
+  min-height: 3px;
+}
+
+.activityLabel {
+  font-size: 0.6875rem;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+
+/* ── Timeline footer / delete ─────────────────────────────── */
+.timelineFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.deleteDataBtn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--gray-200);
+  background: white;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--gray-400);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.deleteDataBtn:hover {
+  border-color: #fca5a5;
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+.deleteConfirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deleteConfirmText {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+}
+
+.deleteConfirmYes {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #fca5a5;
+  background: #fef2f2;
+  color: #ef4444;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.deleteConfirmYes:hover { background: #fee2e2; }
+
+.deleteConfirmNo {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--gray-200);
+  background: white;
+  color: var(--gray-500);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.deleteConfirmNo:hover { background: var(--gray-100); }
+
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 640px) {
   .tabContent {
