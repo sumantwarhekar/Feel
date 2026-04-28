@@ -1,21 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  collection,
-  addDoc,
-  query,
-  where,
-  orderBy,
-  getDocs,
-  serverTimestamp,
-  doc,
-  updateDoc,
-  getDoc,
-  Timestamp,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase/config";
-import { useAuth } from "@/lib/hooks/useAuth";
 
 export type MoodId = "great" | "good" | "meh" | "bad" | "awful";
 
@@ -24,110 +9,90 @@ export interface Entry {
   userId: string;
   text: string;
   mood: MoodId;
-  /** Local date string — YYYY-MM-DD */
+  /** Local date — YYYY-MM-DD */
   date: string;
-  createdAt: Timestamp;
+  createdAt: string; // ISO string
 }
 
-/** Returns YYYY-MM-DD in the user's local timezone for the given Date (default: now). */
+interface UserMeta {
+  streak: number;
+  lastEntryDate: string | null; // YYYY-MM-DD
+}
+
+const ENTRIES_KEY = "feel_entries";
+const META_KEY    = "feel_user_meta";
+
 function localDateStr(d = new Date()): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-/**
- * Requires two composite Firestore indexes:
- *  1. entries: userId ASC, date ASC      (for today query)
- *  2. entries: userId ASC, date DESC     (for timeline query)
- * Firebase will log a console link to create them on first use if they're missing.
- */
+function readEntries(): Entry[] {
+  try { return JSON.parse(localStorage.getItem(ENTRIES_KEY) ?? "[]"); }
+  catch { return []; }
+}
+
+function writeEntries(entries: Entry[]): void {
+  localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries));
+}
+
+function readMeta(): UserMeta {
+  try { return JSON.parse(localStorage.getItem(META_KEY) ?? "null") ?? { streak: 0, lastEntryDate: null }; }
+  catch { return { streak: 0, lastEntryDate: null }; }
+}
+
+function writeMeta(meta: UserMeta): void {
+  localStorage.setItem(META_KEY, JSON.stringify(meta));
+}
+
 export function useEntries() {
-  const { user } = useAuth();
   const [todayEntry, setTodayEntry] = useState<Entry | null>(null);
   const [entries, setEntries]       = useState<Entry[]>([]);
   const [streak, setStreak]         = useState(0);
   const [loading, setLoading]       = useState(true);
   const [saving, setSaving]         = useState(false);
 
-  /* On mount: load today's entry + streak */
   useEffect(() => {
-    if (!user) { setLoading(false); return; }
+    const today = localDateStr();
+    const found = readEntries().find((e) => e.date === today) ?? null;
+    setTodayEntry(found);
+    setStreak(readMeta().streak);
+    setLoading(false);
+  }, []);
 
-    (async () => {
-      try {
-        const today = localDateStr();
+  const loadEntries = useCallback(() => {
+    const sorted = readEntries().sort((a, b) => b.date.localeCompare(a.date));
+    setEntries(sorted);
+  }, []);
 
-        const todayQ = query(
-          collection(db, "entries"),
-          where("userId", "==", user.uid),
-          where("date",   "==", today),
-        );
-        const snap = await getDocs(todayQ);
-        if (!snap.empty) {
-          const d = snap.docs[0];
-          setTodayEntry({ id: d.id, ...(d.data() as Omit<Entry, "id">) });
-        }
-
-        const userSnap = await getDoc(doc(db, "users", user.uid));
-        if (userSnap.exists()) setStreak(userSnap.data().streak ?? 0);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [user]);
-
-  /** Fetch all entries ordered by date desc — call this when the Timeline mounts. */
-  const loadEntries = useCallback(async () => {
-    if (!user) return;
-    const q = query(
-      collection(db, "entries"),
-      where("userId", "==", user.uid),
-      orderBy("date", "desc"),
-    );
-    const snap = await getDocs(q);
-    setEntries(snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<Entry, "id">) })));
-  }, [user]);
-
-  /** Persist a new entry and update the user's streak. */
   const saveEntry = useCallback(async (text: string, mood: MoodId) => {
-    if (!user) return;
     setSaving(true);
     try {
       const today = localDateStr();
-
-      const ref = await addDoc(collection(db, "entries"), {
-        userId:    user.uid,
+      const entry: Entry = {
+        id:        crypto.randomUUID(),
+        userId:    "local",
         text,
         mood,
         date:      today,
-        createdAt: serverTimestamp(),
-      });
+        createdAt: new Date().toISOString(),
+      };
 
-      /* Streak: +1 if last entry was yesterday, else reset to 1 */
-      const userRef  = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      let newStreak  = 1;
-      if (userSnap.exists()) {
-        const data   = userSnap.data();
-        const lastTs = data.lastEntryDate as Timestamp | null;
-        if (lastTs) {
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          if (localDateStr(lastTs.toDate()) === localDateStr(yesterday)) {
-            newStreak = (data.streak ?? 0) + 1;
-          }
-        }
-      }
+      writeEntries([...readEntries(), entry]);
 
-      await updateDoc(userRef, { streak: newStreak, lastEntryDate: serverTimestamp() });
+      const meta      = readMeta();
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const newStreak = meta.lastEntryDate === localDateStr(yesterday)
+        ? meta.streak + 1
+        : 1;
 
+      writeMeta({ streak: newStreak, lastEntryDate: today });
       setStreak(newStreak);
-      setTodayEntry({
-        id: ref.id, userId: user.uid, text, mood, date: today, createdAt: Timestamp.now(),
-      });
+      setTodayEntry(entry);
     } finally {
       setSaving(false);
     }
-  }, [user]);
+  }, []);
 
   return { todayEntry, entries, streak, loading, saving, saveEntry, loadEntries };
 }
