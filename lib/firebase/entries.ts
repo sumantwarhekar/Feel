@@ -2,6 +2,7 @@ import {
   collection,
   query,
   where,
+  orderBy,
   getDocs,
   doc,
   getDoc,
@@ -85,6 +86,23 @@ export async function getTodayEntry(userId: string): Promise<JournalEntry | null
 export async function getUserStreak(userId: string): Promise<number> {
   const snap = await getDoc(doc(db, "users", userId));
   return (snap.data()?.streak as number | undefined) ?? 0;
+}
+
+export async function getAllEntries(userId: string): Promise<(JournalEntry & { date: string; createdAt: Date | null })[]> {
+  const snap = await getDocs(
+    query(
+      collection(db, "entries"),
+      where("userId", "==", userId),
+      orderBy("createdAt", "desc")
+    )
+  );
+  return snap.docs.map((d) => ({
+    id:        d.id,
+    text:      d.data().text as string,
+    mood:      d.data().mood as Mood,
+    date:      d.id.slice(userId.length + 1),
+    createdAt: (d.data().createdAt as Timestamp | null)?.toDate() ?? null,
+  }));
 }
 
 export async function getMonthEntries(
