@@ -34,8 +34,5 @@ export function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    // Skip static files and Next internals to avoid touching chunk/css/service-worker requests
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\..*).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)"],
 };
