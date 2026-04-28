@@ -6,6 +6,10 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useEntries, type MoodId, type Entry } from "@/lib/hooks/useEntries";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
+import TodayPanel     from "@/components/dashboard/TodayPanel";
+import CalendarPanel  from "@/components/dashboard/CalendarPanel";
+import TimelinePanel  from "@/components/dashboard/TimelinePanel";
+import StatsPanel     from "@/components/dashboard/StatsPanel";
 import styles from "@/styles/dashboard.module.css";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -513,11 +517,16 @@ export default function DashboardPage() {
 
   const renderPanel = () => {
     switch (activeTab) {
-      case "today":    return <TodayPanel />;
-      case "timeline": return <TimelinePanel />;
-      case "calendar": return <CalendarPanel />;
-      case "stats":    return <StatsPanel />;
-      default:         return <TodayPanel />;
+      case "today":
+        return <TodayPanel />;
+      case "timeline":
+        return <TimelinePanel />;
+      case "calendar":
+        return <CalendarPanel />;
+      case "stats":
+        return <StatsPanel />;
+      default:
+        return <TodayPanel />;
     }
   };
 
@@ -526,9 +535,7 @@ export default function DashboardPage() {
       <DashboardNavbar activeTab={activeTab} onTabChange={setActiveTab} />
 
       <main className={styles.tabContent}>
-        <AnimatePresence mode="wait">
-          {renderPanel()}
-        </AnimatePresence>
+        <AnimatePresence mode="wait">{renderPanel()}</AnimatePresence>
       </main>
 
       {isDev && <SeedButton />}
