@@ -126,14 +126,6 @@ export default function TimelinePanel() {
           ))}
         </div>
       )}
-      <div className={styles.emptyState}>
-        <div className={styles.emptyEmoji}>📋</div>
-        <h2 className={styles.emptyTitle}>No entries yet</h2>
-        <p className={styles.emptySubtext}>
-          Write your first entry on the Today tab. Every line you write shows up
-          here.
-        </p>
-      </div>
     </motion.div>
   );
 }

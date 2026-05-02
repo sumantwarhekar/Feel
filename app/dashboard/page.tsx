@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { useEntries, type Entry } from "@/lib/hooks/useEntries";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import TodayPanel from "@/components/dashboard/TodayPanel";
+import TimelinePanel from "@/components/dashboard/TimelinePanel";
 import CalendarPanel from "@/components/dashboard/CalendarPanel";
 import styles from "@/styles/dashboard.module.css";
 
@@ -19,22 +20,6 @@ const MOODS = [
 ];
 
 /* ── Mood CSS class maps ────────────────────────────────── */
-const MOOD_PILL: Record<string, string> = {
-  great: styles.pillGreat,
-  good: styles.pillGood,
-  meh: styles.pillMeh,
-  bad: styles.pillBad,
-  awful: styles.pillAwful,
-};
-
-const MOOD_ACCENT: Record<string, string> = {
-  great: styles.accentGreat,
-  good: styles.accentGood,
-  meh: styles.accentMeh,
-  bad: styles.accentBad,
-  awful: styles.accentAwful,
-};
-
 const MOOD_BAR: Record<string, string> = {
   great: styles.barGreat,
   good: styles.barGood,
@@ -50,39 +35,9 @@ const panelVariants = {
   exit: { opacity: 0, y: -8 },
 };
 
-/* ── List stagger ───────────────────────────────────────── */
-const listVariants: Variants = {
-  animate: { transition: { staggerChildren: 0.06 } },
-};
-const itemVariants: Variants = {
-  initial: { opacity: 0, y: 14 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-};
-
 /* ── Helpers ────────────────────────────────────────────── */
 function toDateStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-function relativeDate(dateStr: string): string {
-  const today = toDateStr(new Date());
-  const yesterday = toDateStr(new Date(Date.now() - 864e5));
-  if (dateStr === today) return "Today";
-  if (dateStr === yesterday) return "Yesterday";
-  const [y, m, d] = dateStr.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function formatMonth(key: string): string {
-  const [y, m] = key.split("-").map(Number);
-  return new Date(y, m - 1, 1).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
 }
 
 function dateToDay(dateStr: string): number {
@@ -107,116 +62,6 @@ function calcBestStreak(entries: Entry[]): number {
 /* ════════════════════════════════════════════════════════════
    Tab Panels
    ════════════════════════════════════════════════════════════ */
-
-/* ── Timeline ── */
-function TimelinePanel() {
-  const { entries, loading, loadEntries } = useEntries();
-
-  useEffect(() => {
-    loadEntries();
-  }, [loadEntries]);
-
-  const grouped = useMemo(() => {
-    const map = new Map<string, Entry[]>();
-    for (const entry of entries) {
-      const key = entry.date.slice(0, 7);
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(entry);
-    }
-    return map;
-  }, [entries]);
-
-  if (loading) {
-    return (
-      <motion.div
-        key="tl-loading"
-        {...panelVariants}
-        transition={{ duration: 0.4 }}
-      >
-        <div className={styles.emptyState}>
-          <div className={styles.emptyEmoji}>⏳</div>
-          <p className={styles.emptySubtext}>Loading…</p>
-        </div>
-      </motion.div>
-    );
-  }
-
-  if (entries.length === 0) {
-    return (
-      <motion.div
-        key="timeline-empty"
-        {...panelVariants}
-        transition={{ duration: 0.4 }}
-      >
-        <h1 className={styles.sectionHeading}>Timeline</h1>
-        <p className={styles.sectionSubtext}>
-          All your entries, most recent first.
-        </p>
-        <div className={styles.emptyState}>
-          <div className={styles.emptyEmoji}>📋</div>
-          <h2 className={styles.emptyTitle}>No entries yet</h2>
-          <p className={styles.emptySubtext}>
-            Write your first entry on the Today tab. Every line you write shows
-            up here.
-          </p>
-        </div>
-      </motion.div>
-    );
-  }
-
-  return (
-    <motion.div
-      key="timeline"
-      {...panelVariants}
-      transition={{ duration: 0.4 }}
-    >
-      <h1 className={styles.sectionHeading}>Timeline</h1>
-      <p className={styles.sectionSubtext}>
-        {entries.length} {entries.length === 1 ? "entry" : "entries"} total.
-      </p>
-
-      <motion.div
-        className={styles.timelineList}
-        variants={listVariants}
-        initial="initial"
-        animate="animate"
-      >
-        {Array.from(grouped.entries()).map(([key, monthEntries]) => (
-          <div key={key} className={styles.monthGroup}>
-            <div className={styles.monthHeader}>
-              <span className={styles.monthLabel}>{formatMonth(key)}</span>
-              <span className={styles.monthCount}>{monthEntries.length}</span>
-            </div>
-            {monthEntries.map((entry) => {
-              const mood = MOODS.find((m) => m.id === entry.mood);
-              return (
-                <motion.div
-                  key={entry.id}
-                  variants={itemVariants}
-                  className={`${styles.timelineEntry} ${MOOD_ACCENT[entry.mood] ?? ""}`}
-                >
-                  <div className={styles.entryMeta}>
-                    <span className={styles.entryDate}>
-                      {relativeDate(entry.date)}
-                    </span>
-                    {mood && (
-                      <span
-                        className={`${styles.entryMoodPill} ${MOOD_PILL[entry.mood] ?? ""}`}
-                      >
-                        {mood.emoji} {mood.label}
-                      </span>
-                    )}
-                  </div>
-                  <p className={styles.entryBody}>{entry.text}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        ))}
-      </motion.div>
-    </motion.div>
-  );
-}
 
 /* ── Stats ── */
 function StatsPanel() {
