@@ -11,24 +11,24 @@ import styles from "@/styles/dashboard.module.css";
 
 const MOOD_EMOJI: Record<string, string> = {
   great: "😄",
-  good:  "🙂",
-  meh:   "😐",
-  bad:   "😔",
+  good: "🙂",
+  meh: "😐",
+  bad: "😔",
   awful: "😞",
 };
 
 const panelVariants = {
   initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0 },
-  exit:    { opacity: 0, y: -8 },
+  exit: { opacity: 0, y: -8 },
 };
 
 export default function TimelinePanel() {
   const { user } = useAuth();
 
-  const [entries, setEntries]       = useState<JournalEntry[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [exporting, setExporting]   = useState<"pdf" | "txt" | null>(null);
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState<"pdf" | "txt" | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -53,9 +53,15 @@ export default function TimelinePanel() {
   };
 
   return (
-    <motion.div key="timeline" {...panelVariants} transition={{ duration: 0.4 }}>
+    <motion.div
+      key="timeline"
+      {...panelVariants}
+      transition={{ duration: 0.4 }}
+    >
       <h1 className={styles.sectionHeading}>Timeline</h1>
-      <p className={styles.sectionSubtext}>All your entries, most recent first.</p>
+      <p className={styles.sectionSubtext}>
+        All your entries, most recent first.
+      </p>
 
       {/* Export bar */}
       {!loading && entries.length > 0 && (
@@ -91,7 +97,8 @@ export default function TimelinePanel() {
           <div className={styles.emptyEmoji}>📋</div>
           <h2 className={styles.emptyTitle}>No entries yet</h2>
           <p className={styles.emptySubtext}>
-            Write your first entry on the Today tab. Every line you write shows up here.
+            Write your first entry on the Today tab. Every line you write shows
+            up here.
           </p>
         </div>
       )}
@@ -105,9 +112,9 @@ export default function TimelinePanel() {
                 <span className={styles.entryDate}>
                   {entry.createdAt.toDate().toLocaleDateString("en-US", {
                     weekday: "short",
-                    month:   "short",
-                    day:     "numeric",
-                    year:    "numeric",
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
                   })}
                 </span>
                 <span className={styles.entryMood}>
@@ -119,6 +126,14 @@ export default function TimelinePanel() {
           ))}
         </div>
       )}
+      <div className={styles.emptyState}>
+        <div className={styles.emptyEmoji}>📋</div>
+        <h2 className={styles.emptyTitle}>No entries yet</h2>
+        <p className={styles.emptySubtext}>
+          Write your first entry on the Today tab. Every line you write shows up
+          here.
+        </p>
+      </div>
     </motion.div>
   );
 }
