@@ -50,33 +50,6 @@ const panelVariants = {
   exit: { opacity: 0, y: -8 },
 };
 
-import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
-import TodayPanel from "@/components/dashboard/TodayPanel";
-import TimelinePanel from "@/components/dashboard/TimelinePanel";
-import styles from "@/styles/dashboard.module.css";
-
-/* ── Calendar ── */
-function CalendarPanel() {
-  return (
-    <motion.div
-      key="calendar"
-      {...panelVariants}
-      transition={{ duration: 0.4 }}
-    >
-      <h1 className={styles.sectionHeading}>Calendar</h1>
-      <p className={styles.sectionSubtext}>
-        Your journaling streak at a glance.
-      </p>
-      <div className={styles.emptyState}>
-        <div className={styles.emptyEmoji}>📅</div>
-        <h2 className={styles.emptyTitle}>Streak calendar coming soon</h2>
-        <p className={styles.emptySubtext}>
-          Write a few entries and your consistency heatmap will appear here.
-        </p>
-      </div>
-    </motion.div>
-  );
-}
 /* ── List stagger ───────────────────────────────────────── */
 const listVariants: Variants = {
   animate: { transition: { staggerChildren: 0.06 } },
