@@ -7,6 +7,8 @@ import {
   doc,
   getDoc,
   setDoc,
+  deleteDoc,
+  writeBatch,
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
@@ -131,4 +133,14 @@ export async function getMonthEntries(
     }
   });
   return days;
+}
+
+export async function deleteAllEntries(userId: string): Promise<void> {
+  const snap = await getDocs(
+    query(collection(db, "entries"), where("userId", "==", userId)),
+  );
+  const batch = writeBatch(db);
+  snap.docs.forEach((d) => batch.delete(d.ref));
+  await batch.commit();
+  await setDoc(doc(db, "users", userId), { streak: 0, lastEntryDate: null }, { merge: true });
 }
