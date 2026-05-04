@@ -426,7 +426,7 @@
   color: var(--gray-400);
 }
 
-/* ── TIMELINE TAB ─────────────────────────────────────────── */
+/* ── TIMELINE TAB (grouped view) ──────────────────────────── */
 .timelineList {
   display: flex;
   flex-direction: column;
@@ -466,22 +466,6 @@
   padding: 1px 8px;
 }
 
-.timelineEntry {
-  background: white;
-  border: 1px solid var(--gray-100);
-  border-radius: 16px;
-  padding: 18px 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  transition:
-    box-shadow 0.2s,
-    transform 0.2s;
-  border-left-width: 3px;
-  border-left-style: solid;
-}
-
 .timelineEntry:hover {
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
   transform: translateX(2px);
@@ -509,12 +493,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-}
-
-.entryDate {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--gray-400);
 }
 
 .entryMoodPill {
@@ -801,6 +779,7 @@
 .deleteConfirmNo:hover {
   background: var(--gray-100);
 }
+
 /* ── Read-only today entry ────────────────────────────────── */
 .entryDoneText {
   font-size: 1rem;
@@ -913,6 +892,83 @@
   color: var(--gray-500);
   background: var(--gray-100);
   border: 1.5px solid transparent;
+  position: relative;
+  cursor: default;
+}
+
+.calendarCellNum {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.calendarCellContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.calendarCellEmoji {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.calendarCellMoodName {
+  font-size: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+  line-height: 1;
+}
+
+.calendarTooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(17, 24, 39, 0.94);
+  color: #f9fafb;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  padding: 10px 14px;
+  border-radius: 12px;
+  width: 220px;
+  text-align: left;
+  z-index: 200;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.calendarCell:hover .calendarTooltip {
+  opacity: 1;
+}
+
+.calendarTooltipDate {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--green-400);
+  margin-bottom: 6px;
+}
+
+.calendarTooltipText {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .calendarCellFilled {
@@ -950,6 +1006,12 @@
   .calendarCell {
     font-size: 0.75rem;
     border-radius: 8px;
+  }
+  .calendarCellEmoji {
+    font-size: 1rem;
+  }
+  .calendarTooltip {
+    width: 160px;
   }
   .calendarGrid {
     gap: 4px;

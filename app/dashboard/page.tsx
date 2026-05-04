@@ -234,6 +234,7 @@ function StatsPanel() {
   );
 }
 
+
 /* ════════════════════════════════════════════════════════════
    Dashboard Page
    ════════════════════════════════════════════════════════════ */
@@ -262,6 +263,7 @@ export default function DashboardPage() {
       <main className={styles.tabContent}>
         <AnimatePresence mode="wait">{renderPanel()}</AnimatePresence>
       </main>
+
     </div>
   );
 }

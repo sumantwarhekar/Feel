@@ -113,19 +113,21 @@ export async function getMonthEntries(
   userId: string,
   year: number,
   month: number, // 0-indexed
-): Promise<Set<number>> {
+): Promise<Map<number, { mood: Mood; text: string }>> {
   const snap = await getDocs(
     query(collection(db, "entries"), where("userId", "==", userId)),
   );
 
-  const days = new Set<number>();
+  const days = new Map<number, { mood: Mood; text: string }>();
   snap.forEach((d) => {
-    const ts = d.data().createdAt as Timestamp | undefined;
-    if (ts) {
-      const date = ts.toDate();
-      if (date.getFullYear() === year && date.getMonth() === month) {
-        days.add(date.getDate());
-      }
+    const dateStr = d.id.slice(userId.length + 1); // YYYY-MM-DD
+    if (!dateStr) return;
+    const parts = dateStr.split("-").map(Number);
+    if (parts[0] === year && parts[1] - 1 === month) {
+      days.set(parts[2], {
+        mood: d.data().mood as Mood,
+        text: d.data().text as string,
+      });
     }
   });
   return days;
