@@ -36,6 +36,7 @@ export default function TodayPanel() {
   const [submitted, setSubmitted]     = useState(false);
   const [streak, setStreak]           = useState(0);
   const [saving, setSaving]           = useState(false);
+  const [isEditing, setIsEditing]     = useState(false);
   const [saveError, setSaveError]     = useState<string | null>(null);
   const [initLoading, setInitLoading] = useState(true);
 
@@ -101,7 +102,18 @@ export default function TodayPanel() {
         </span>
 
         <div className={styles.entryCard}>
-          <p className={styles.entryDoneText}>{text}</p>
+          <div className={styles.entryDoneHeader}>
+            <p className={styles.entryDoneText}>{text}</p>
+            <motion.button
+              className={styles.editBtn}
+              onClick={() => { setSubmitted(false); setIsEditing(true); }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Edit entry"
+            >
+              ✏️ Edit
+            </motion.button>
+          </div>
         </div>
 
         <div className={styles.moodCard}>
@@ -153,7 +165,7 @@ export default function TodayPanel() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            {saving ? "Saving…" : "Save entry"}
+            {saving ? "Saving…" : isEditing ? "Update entry" : "Save entry"}
           </motion.button>
         </div>
         {saveError && <p className={styles.saveError}>{saveError}</p>}
