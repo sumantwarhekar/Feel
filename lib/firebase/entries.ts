@@ -7,6 +7,8 @@ import {
   doc,
   getDoc,
   setDoc,
+  deleteDoc,
+  writeBatch,
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
@@ -30,7 +32,7 @@ function localDateKey(date = new Date()): string {
 export async function saveEntry(
   userId: string,
   text: string,
-  mood: Mood
+  mood: Mood,
 ): Promise<number> {
   await setDoc(doc(db, "entries", `${userId}_${localDateKey()}`), {
     userId,
@@ -41,9 +43,9 @@ export async function saveEntry(
 
   let newStreak = 1;
   try {
-    const userRef  = doc(db, "users", userId);
+    const userRef = doc(db, "users", userId);
     const userSnap = await getDoc(userRef);
-    const data     = userSnap.data();
+    const data = userSnap.data();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -52,10 +54,10 @@ export async function saveEntry(
       const last: Date = (data.lastEntryDate as Timestamp).toDate();
       last.setHours(0, 0, 0, 0);
       const diffDays = Math.round(
-        (today.getTime() - last.getTime()) / 86_400_000
+        (today.getTime() - last.getTime()) / 86_400_000,
       );
       if (diffDays === 0) {
-        newStreak = data.streak || 1;        // || catches 0, null, undefined
+        newStreak = data.streak || 1; // || catches 0, null, undefined
       } else if (diffDays === 1) {
         newStreak = (data.streak ?? 0) + 1;
       }
@@ -64,7 +66,7 @@ export async function saveEntry(
     await setDoc(
       userRef,
       { streak: newStreak, lastEntryDate: serverTimestamp() },
-      { merge: true }
+      { merge: true },
     );
   } catch {
     // Entry is already saved — streak update failing should not block submission
@@ -73,11 +75,13 @@ export async function saveEntry(
   return newStreak;
 }
 
-export async function getTodayEntry(userId: string): Promise<JournalEntry | null> {
+export async function getTodayEntry(
+  userId: string,
+): Promise<JournalEntry | null> {
   const snap = await getDoc(doc(db, "entries", `${userId}_${localDateKey()}`));
   if (!snap.exists()) return null;
   return {
-    id:   snap.id,
+    id: snap.id,
     text: snap.data().text as string,
     mood: snap.data().mood as Mood,
   };
@@ -88,19 +92,21 @@ export async function getUserStreak(userId: string): Promise<number> {
   return (snap.data()?.streak as number | undefined) ?? 0;
 }
 
-export async function getAllEntries(userId: string): Promise<(JournalEntry & { date: string; createdAt: Date | null })[]> {
+export async function getAllEntries(
+  userId: string,
+): Promise<(JournalEntry & { date: string; createdAt: Date | null })[]> {
   const snap = await getDocs(
     query(
       collection(db, "entries"),
       where("userId", "==", userId),
-      orderBy("createdAt", "desc")
-    )
+      orderBy("createdAt", "desc"),
+    ),
   );
   return snap.docs.map((d) => ({
-    id:        d.id,
-    text:      d.data().text as string,
-    mood:      d.data().mood as Mood,
-    date:      d.id.slice(userId.length + 1),
+    id: d.id,
+    text: d.data().text as string,
+    mood: d.data().mood as Mood,
+    date: d.id.slice(userId.length + 1),
     createdAt: (d.data().createdAt as Timestamp | null)?.toDate() ?? null,
   }));
 }
@@ -108,21 +114,33 @@ export async function getAllEntries(userId: string): Promise<(JournalEntry & { d
 export async function getMonthEntries(
   userId: string,
   year: number,
-  month: number  // 0-indexed
-): Promise<Set<number>> {
+  month: number, // 0-indexed
+): Promise<Map<number, { mood: Mood; text: string }>> {
   const snap = await getDocs(
-    query(collection(db, "entries"), where("userId", "==", userId))
+    query(collection(db, "entries"), where("userId", "==", userId)),
   );
 
-  const days = new Set<number>();
+  const days = new Map<number, { mood: Mood; text: string }>();
   snap.forEach((d) => {
-    const ts = d.data().createdAt as Timestamp | undefined;
-    if (ts) {
-      const date = ts.toDate();
-      if (date.getFullYear() === year && date.getMonth() === month) {
-        days.add(date.getDate());
-      }
+    const dateStr = d.id.slice(userId.length + 1); // YYYY-MM-DD
+    if (!dateStr) return;
+    const parts = dateStr.split("-").map(Number);
+    if (parts[0] === year && parts[1] - 1 === month) {
+      days.set(parts[2], {
+        mood: d.data().mood as Mood,
+        text: d.data().text as string,
+      });
     }
   });
   return days;
+}
+
+export async function deleteAllEntries(userId: string): Promise<void> {
+  const snap = await getDocs(
+    query(collection(db, "entries"), where("userId", "==", userId)),
+  );
+  const batch = writeBatch(db);
+  snap.docs.forEach((d) => batch.delete(d.ref));
+  await batch.commit();
+  await setDoc(doc(db, "users", userId), { streak: 0, lastEntryDate: null }, { merge: true });
 }

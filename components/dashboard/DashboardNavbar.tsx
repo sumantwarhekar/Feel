@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useAuth } from "@/lib/hooks/useAuth";
+import SettingsModal from "@/components/dashboard/SettingsModal";
 import navStyles from "@/styles/navbar.module.css";
 import styles from "@/styles/dashboard.module.css";
 
@@ -19,7 +20,7 @@ function getInitials(name?: string | null, email?: string | null): string {
 }
 
 /* ── Profile dropdown ───────────────────────────────────── */
-function ProfileDropdown({ onClose }: { onClose: () => void }) {
+function ProfileDropdown({ onClose, onSettings }: { onClose: () => void; onSettings: () => void }) {
   const { user, logout } = useAuth();
 
   return (
@@ -70,9 +71,10 @@ interface DashboardNavbarProps {
 
 export default function DashboardNavbar({ activeTab, onTabChange }: DashboardNavbarProps) {
   const { user } = useAuth();
-  const [hidden, setHidden]           = useState(false);
-  const [elevated, setElevated]       = useState(false);
+  const [hidden, setHidden]             = useState(false);
+  const [elevated, setElevated]         = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
   const lastScrollY   = useRef(0);
@@ -122,6 +124,8 @@ export default function DashboardNavbar({ activeTab, onTabChange }: DashboardNav
   }, [dropdownOpen]);
 
   return (
+    <>
+    {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
     <nav className={`${styles.dashNav} ${hidden ? styles.hidden : ""} ${elevated ? styles.elevated : ""}`}>
       <div className="nav-inner">
         {/* Left: Logo */}
@@ -165,11 +169,15 @@ export default function DashboardNavbar({ activeTab, onTabChange }: DashboardNav
 
           <AnimatePresence>
             {dropdownOpen && (
-              <ProfileDropdown onClose={() => setDropdownOpen(false)} />
+              <ProfileDropdown
+                onClose={() => setDropdownOpen(false)}
+                onSettings={() => setSettingsOpen(true)}
+              />
             )}
           </AnimatePresence>
         </div>
       </div>
     </nav>
+    </>
   );
 }
