@@ -35,9 +35,9 @@ function ProfileDropdown({ onClose }: { onClose: () => void }) {
         <p className={styles.dropdownEmail}>{user?.email}</p>
       </div>
       <div className={styles.dropdownBody}>
-        <button className={styles.dropdownItem} onClick={onClose}>
+        <Link href="/settings" className={styles.dropdownItem} onClick={onClose} style={{ textDecoration: "none" }}>
           ⚙️ &nbsp;Settings
-        </button>
+        </Link>
         <button
           className={`${styles.dropdownItem} ${styles.danger}`}
           onClick={() => { logout(); onClose(); }}
