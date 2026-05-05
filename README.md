@@ -1,4 +1,4 @@
-# 🌿 Feel — Micro-Journaling App
+# 🌿 Feel - Micro-Journaling App
 
 > **For contributors & AI assistants:** This README is the single source of truth for every design decision, convention, and rule in this project. Read it fully before writing any code.
 
