@@ -36,9 +36,9 @@ function ProfileDropdown({ onClose, onSettings }: { onClose: () => void; onSetti
         <p className={styles.dropdownEmail}>{user?.email}</p>
       </div>
       <div className={styles.dropdownBody}>
-        <button className={styles.dropdownItem} onClick={() => { onSettings(); onClose(); }}>
+        <Link href="/settings" className={styles.dropdownItem} onClick={onClose}>
           ⚙️ &nbsp;Settings
-        </button>
+        </Link>
         <button
           className={`${styles.dropdownItem} ${styles.danger}`}
           onClick={() => { logout(); onClose(); }}

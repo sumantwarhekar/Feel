@@ -1018,9 +1018,6 @@
 }
 
 .calendarCellFuture {
-  opacity: 0.4;
-}
-
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 640px) {
   .tabContent {

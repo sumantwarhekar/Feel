@@ -247,8 +247,7 @@ export default function SettingsModal({ onClose }: Props) {
               {/* Delete account */}
               {!confirmAccount ? (
                 <button
-                  className={styles.dangerBtn}
-                  style={{ marginTop: 10 }}
+                  className={`${styles.dangerBtn} ${styles.mt10}`}
                   onClick={() => { setConfirmAccount(true); setDangerStatus(null); }}
                 >
                   Delete account
