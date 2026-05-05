@@ -135,12 +135,16 @@ export async function getMonthEntries(
   return days;
 }
 
-export async function deleteAllEntries(userId: string): Promise<void> {
+export async function deleteAllEntries(userId: string, isDeletingAccount = false): Promise<void> {
   const snap = await getDocs(
     query(collection(db, "entries"), where("userId", "==", userId)),
   );
   const batch = writeBatch(db);
   snap.docs.forEach((d) => batch.delete(d.ref));
   await batch.commit();
-  await setDoc(doc(db, "users", userId), { streak: 0, lastEntryDate: null }, { merge: true });
+  
+  if (!isDeletingAccount) {
+    await setDoc(doc(db, "users", userId), { streak: 0, lastEntryDate: null }, { merge: true });
+  }
 }
+

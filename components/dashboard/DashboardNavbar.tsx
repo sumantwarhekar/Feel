@@ -36,7 +36,7 @@ function ProfileDropdown({ onClose, onSettings }: { onClose: () => void; onSetti
         <p className={styles.dropdownEmail}>{user?.email}</p>
       </div>
       <div className={styles.dropdownBody}>
-        <Link href="/settings" className={styles.dropdownItem} onClick={onClose} style={{ textDecoration: "none" }}>
+        <Link href="/settings" className={styles.dropdownItem} onClick={onClose}>
           ⚙️ &nbsp;Settings
         </Link>
         <button
